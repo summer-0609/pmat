@@ -25,10 +25,10 @@ class Cli {
       .option('--no-online', 'disable network (defalut: false)')
       .parse(process.argv);
 
-    const choices = await this.prompt();
+    // const choices = await this.prompt();
 
     return {
-      ...choices,
+      // ...choices,
       url,
     };
   }

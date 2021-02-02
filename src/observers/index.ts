@@ -4,30 +4,28 @@ import Navigation from './navigation';
 
 class Observer {
   private options: IPerformanceOutput;
-  private observers: Array<Observer>;
+  private observers: any;
+  public results: any;
 
-  constructor(options?: IPerformanceOutput) {
+  init(options?: IPerformanceOutput): this {
     this.options = options;
-    this.observers = [];
+    this.observers = [new Navigation()];
+
+    return this;
   }
 
-  addObserver<T extends Observer>(observer?: T): void {
-    this.observers.push(observer);
+  async run(): Promise<void> {
+    for (const observer of this.observers) {
+      const result = await observer.start(this.options);
+    }
   }
 
-  run() {
-    const { browser } = this.options;
-
-    browser.on('targetchanged', async (target) => {
-      const page = await target.page();
-      // 等待 dom 文档加载完成的时候
-      page.on('domcontentloaded', async () => {
-        // 通过 evaluate 方法可以获取到页面上的元素和方法
-        await page.evaluate(() => {
-          // return document.body.scrollWidth > document.body.clientWidth;
-        });
-      });
-    });
+  output() {
+    const results = [];
+    for (const observer of this.observers) {
+      results[observer.name] = observer.calculate();
+    }
+    console.log(5, results)
   }
 }
 

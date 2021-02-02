@@ -1,20 +1,25 @@
 import Cli from './cli';
 import Performance from './performance';
+import Observer from './observers';
 
 class Zelda {
   public cli: Cli;
   public performance: Performance;
+  public observer: Observer;
 
   constructor() {
     this.cli = new Cli();
     this.performance = new Performance();
+    this.observer = new Observer();
   }
 
   async run() {
     const options = await this.cli.monitor();
-    const puppeteerOutput = await this.performance.run(options);
+    const puppeteerOutput = await this.performance.init(options);
 
-
+    await this.observer.init(puppeteerOutput).run();
+    await this.observer.output();
+    // await this.observer.output();
   }
 }
 

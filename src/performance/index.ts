@@ -4,12 +4,12 @@ import type { ICliOptions } from '../cli/interface';
 import type { IPerformanceOutput } from './interface';
 
 class Performance {
-  async run(options?: ICliOptions): Promise<IPerformanceOutput> {
-    const { url, indicators } = options;
-
-    const browser = await puppeteer.launch();
+  async init(options?: ICliOptions): Promise<IPerformanceOutput> {
+    const browser = await puppeteer.launch({
+      product: 'chrome',
+    });
     const page = await browser.newPage();
-    await page.goto(url, { waitUntil: 'load' });
+    await page.goto(options.url, { waitUntil: 'load' });
 
     return { page, browser };
   }
