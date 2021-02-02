@@ -17,8 +17,8 @@ class Zelda {
     const options = await this.cli.monitor();
     const puppeteerOutput = await this.performance.init(options);
 
-    await this.observer.init(puppeteerOutput).run();
-    await this.observer.output();
+    await this.observer.init(puppeteerOutput).start();
+    await this.observer.calculate();
     // await this.observer.output();
   }
 }
