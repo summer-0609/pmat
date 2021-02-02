@@ -19,7 +19,7 @@ class Zelda {
 
     await this.observer.init(puppeteerOutput).start();
     await this.observer.calculate();
-    // await this.observer.output();
+    await this.observer.output(options);
   }
 }
 
