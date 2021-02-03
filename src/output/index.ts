@@ -1,9 +1,11 @@
 import figlet from 'figlet';
-import clui from 'clui';
 import chalk from 'chalk';
 
+import { ICliOptions } from '../cli/interface';
+
 const { log } = console;
-const { Line } = clui;
+
+const ui = require('cliui')();
 
 class Output {
   writeASCII() {
@@ -12,18 +14,31 @@ class Output {
     log('\n');
   }
 
-  writeIntro(url: string) {
-    log(`${`🚀 It loaded` } ${  chalk.yellow(`${url}`)}`)
-    log('\n');
+  writeIntro(options?: ICliOptions) {
+    log(`🚀 It loaded ${chalk.yellow(options.url)} ${chalk.bold.green(options.count)} times`);
   }
 
-  writeInfo({ DNS }) {
-    new Line()
-      .padding(2)
-      .column('DNS lookup time', 32)
-      .column(DNS, 20, [chalk.green])
-      .fill()
-      .output();
+  writeInfo(title, data) {
+    ui.div({
+      text: chalk.yellow(`${title}:`),
+      padding: [2, 0, 1, 0],
+    });
+
+    Object.keys(data).map((key) =>
+      ui.div(
+        {
+          text: key,
+          width: 40,
+          padding: [0, 4, 0, 4],
+        },
+        {
+          text: `${chalk.green(data[key])}`,
+          width: 20,
+        },
+      ),
+    );
+
+    log(ui.toString());
   }
 }
 

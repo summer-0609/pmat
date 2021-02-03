@@ -1,26 +1,31 @@
 import chalk from 'chalk';
 import type { Page } from 'puppeteer';
 import { isSupportPerformance, isEmpty, mapValues, format } from '../utils';
-import { IPerformanceOutput } from '../performance/interface';
+
+import type { IPuppeteerOutput } from '../puppeteer/interface';
 
 const { log } = console;
 
 type NavigationType =
-  | 'DNS'
-  | 'TCP'
-  | 'TTFB'
-  | 'Cache'
-  | 'Response'
-  | 'FetchResource'
-  | 'WhiteScreen'
-  | 'DOMReady'
-  | 'DOMContentLoad';
+  | 'Duration time'
+  | 'DNS lookup time'
+  | 'TCP connect time'
+  | 'Time To First Byte time'
+  | 'App cache time'
+  | 'Response time'
+  | 'Fetch resource time'
+  | 'White screen time'
+  | 'DOM Ready time'
+  | 'DOM Content Load time';
 
+/**
+ * performance.getEntriesByType('navigation')
+ */
 class Navigation {
   public name = 'navigation';
-  public navigationTime: string;
+  public navigationList: string[] = [];
 
-  async start(options?: IPerformanceOutput): Promise<void> {
+  async start(options?: IPuppeteerOutput): Promise<void> {
     const { page } = options;
 
     if (!(await this.support(page))) {
@@ -28,7 +33,8 @@ class Navigation {
       return;
     }
 
-    this.navigationTime = await page.evaluate(this.getNavigationTime);
+    const result = await page.evaluate(this.getNavigationList);
+    this.navigationList.push(result);
   }
 
   async support(page: Page): Promise<boolean> {
@@ -37,43 +43,99 @@ class Navigation {
   }
 
   calculate(): Partial<Record<NavigationType, number>> {
-    if (isEmpty(this.navigationTime)) {
+    if (isEmpty(this.navigationList)) {
       return {};
     }
 
-    const {
-      domainLookupEnd,
-      domainLookupStart,
-      connectEnd,
-      connectStart,
-      responseEnd,
-      responseStart,
-      domInteractive,
-      fetchStart,
-      domContentLoadedEventEnd,
-      domContentLoadedEventStart,
-      requestStart,
-    } = JSON.parse(this.navigationTime);
+    const { length } = this.navigationList; // 分析次数
+
+    let totalDuration = 0;
+    // 重定向时间
+    let totalRedirectTime = 0;
+    // DNS查询耗时
+    let totalDNSTime = 0;
+    // 缓存查询时间
+    let totalAppcacheTime = 0;
+    // TCP链接耗时
+    let totalTCPTime = 0;
+    // TTFB
+    let totalTTFBTime = 0;
+    // donwload资源耗时
+    let totalDownloadTime = 0;
+    // 解析dom树耗时
+    let totalResource = 0;
+    // 白屏时间
+    let totalWhiteScreenTime = 0;
+    // domready时间
+    let totalDOMReadyTime = 0;
+    // onload时间
+    let totalLoadTime = 0;
+
+    for (const item of this.navigationList) {
+      const {
+        domainLookupEnd,
+        domainLookupStart,
+        connectEnd,
+        connectStart,
+        responseEnd,
+        responseStart,
+        domInteractive,
+        fetchStart,
+        domContentLoadedEventEnd,
+        domContentLoadedEventStart,
+        requestStart,
+        redirectEnd,
+        redirectStart,
+        duration,
+      } = JSON.parse(item);
+
+      totalDuration += duration;
+      totalRedirectTime += this.getRedirectTime(redirectStart, redirectEnd);
+      totalAppcacheTime += this.getAppCacheTime(fetchStart, domainLookupStart);
+      totalDNSTime += this.getDNSTime(domainLookupStart, domainLookupEnd);
+      totalTCPTime += this.getTCPTime(connectStart, connectEnd);
+      totalTTFBTime += this.getTTFB(requestStart, responseStart);
+      totalDownloadTime += this.getDownloadTime(responseStart, responseEnd);
+      totalResource += this.getFetchResourceTime(fetchStart, responseEnd);
+      totalWhiteScreenTime += this.getWhiteScreenTime(fetchStart, domInteractive);
+      totalDOMReadyTime += this.getDOMReadyTime(fetchStart, domContentLoadedEventEnd);
+      totalLoadTime += this.getLoadTime(domContentLoadedEventStart, domContentLoadedEventEnd);
+    }
 
     return mapValues(
       {
-        DNS: this.getDNSTime(domainLookupStart, domainLookupEnd),
-        TCP: this.getTCPTime(connectStart, connectEnd),
-        TTFB: this.getTTFB(requestStart, responseStart),
-        AppCache: this.getAppCacheTime(fetchStart, domainLookupStart),
-        Response: this.getDownloadTime(responseStart, responseEnd),
-        FetchResource: this.getFetchResourceTime(fetchStart, responseEnd),
-        WhiteScreen: this.getWhiteScreenTime(fetchStart, domInteractive),
-        DOMReady: this.getDOMReadyTime(fetchStart, domContentLoadedEventEnd),
-        DOMContentLoad: this.getLoadTime(domContentLoadedEventStart, domContentLoadedEventEnd),
+        'Duration time': this.getAverage(totalDuration, length),
+        'Redirect time': this.getAverage(totalRedirectTime, length),
+        'App cache time': this.getAverage(totalAppcacheTime, length),
+        'DNS lookup time': this.getAverage(totalDNSTime, length),
+        'TCP connect time': this.getAverage(totalTCPTime, length),
+        'Time To First Byte time': this.getAverage(totalTTFBTime, length),
+        'Download time of the page': this.getAverage(totalDownloadTime, length),
+        'Fetch resource time': this.getAverage(totalResource, length),
+        'White screen time': this.getAverage(totalWhiteScreenTime, length),
+        'DOM Ready time': this.getAverage(totalDOMReadyTime, length),
+        'DOM Content Load time': this.getAverage(totalLoadTime, length),
       },
       format,
     );
   }
 
-  getNavigationTime(): string {
+  getNavigationList(): string {
     const navigation = performance.getEntriesByType('navigation');
     return JSON.stringify(navigation[0] || {});
+  }
+
+  getAverage(total: number, length: number) {
+    return total / length;
+  }
+
+  /**
+   * @param redirectStart 资源开始重定向的时间，如果没有重定向则返回0
+   * @param redirectEnd 资源重定向结束的时间，如果没有重定向则返回0
+   * @returns
+   */
+  getRedirectTime(redirectStart: number, redirectEnd: number): number {
+    return redirectEnd - redirectStart;
   }
 
   /**

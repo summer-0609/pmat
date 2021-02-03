@@ -1,25 +1,34 @@
 import Cli from './cli';
-import Performance from './performance';
+import Puppeteer from './puppeteer';
 import Observer from './observers';
 
 class Zelda {
   public cli: Cli;
-  public performance: Performance;
+  public puppeteer: Puppeteer;
   public observer: Observer;
 
   constructor() {
     this.cli = new Cli();
-    this.performance = new Performance();
+    this.puppeteer = new Puppeteer();
     this.observer = new Observer();
   }
 
   async run() {
     const options = await this.cli.monitor();
-    const puppeteerOutput = await this.performance.init(options);
+    const puppeteer = await this.puppeteer.init();
 
-    await this.observer.init(puppeteerOutput).start();
-    await this.observer.calculate();
-    await this.observer.output(options);
+    this.observer.init(options, puppeteer);
+
+    const { count, url } = options;
+
+    for (let i = 0; i < count; i += 1) {
+      await this.observer.beforeStart();
+      await this.observer.puppeteer.page.goto(url, { waitUntil: 'load' });
+      await this.observer.start();
+    }
+
+    // await this.observer.calculate();
+    // await this.observer.output();
   }
 }
 

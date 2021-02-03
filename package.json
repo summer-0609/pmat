@@ -23,6 +23,7 @@
     "@rollup/plugin-commonjs": "^17.0.0",
     "@rollup/plugin-node-resolve": "^11.1.0",
     "@types/clui": "^0.3.0",
+    "@types/commander": "^2.12.2",
     "@types/figlet": "^1.2.1",
     "@types/inquirer": "^7.3.1",
     "@types/puppeteer": "^5.4.2",
@@ -32,7 +33,7 @@
   "dependencies": {
     "@babel/runtime": "^7.12.5",
     "chalk": "^4.1.0",
-    "clui": "^0.3.6",
+    "cliui": "^7.0.4",
     "commander": "^7.0.0",
     "figlet": "^1.5.0",
     "inquirer": "^7.3.3",

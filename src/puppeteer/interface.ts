@@ -1,6 +1,6 @@
 import type { Page, Browser } from 'puppeteer';
 
-export interface IPerformanceOutput {
+export interface IPuppeteerOutput {
   page: Page;
   browser: Browser;
 }

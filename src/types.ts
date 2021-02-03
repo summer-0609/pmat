@@ -15,3 +15,11 @@ export interface NavigationTime {
   domReady?: number;
   DCL?: number;
 }
+
+declare global {
+  interface Window {
+    LCP: number;
+    CLS: number;
+    FID: string;
+  }
+}
