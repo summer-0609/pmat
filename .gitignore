@@ -10,3 +10,4 @@ package-lock.json
 
 # dist file
 dist
+lib
