@@ -1,4 +1,5 @@
 import { program } from 'commander';
+
 import inquirer from 'inquirer';
 import chalk from 'chalk';
 
@@ -16,40 +17,35 @@ class Cli {
       .action((u) => {
         url = u;
       })
-      .option('-n, --count <n>', 'specified loading times (default: 10)', parseInt)
+      .option('-n, --count <n>', 'specified loading times (default: 3)', parseInt)
       .option('-u, --useragent <ua>', 'to set the useragent')
-      .option('-e, --executablePath <path>', 'use the specified chrome browser')
-      .option('--no-banner', 'disable banner (default: false)')
       .option('--no-cache', 'disable cache (default: false)')
       .option('--no-javascript', 'disable javascript (default: false)')
       .option('--no-online', 'disable network (defalut: false)')
       .parse(process.argv);
 
-    const { count = 10 } = program as ICliOptions;
+    const { count = 3, cache, javascript, useragent, online } = program.opts() as ICliOptions;
+
+    const { tti } = await this.prompt();
+
     return {
+      cache,
       count,
       url,
+      javascript,
+      useragent,
+      online,
+      tti,
     };
   }
 
-  prompt(): Promise<object> {
+  prompt(): Promise<Pick<ICliOptions, 'tti'>> {
     const promptList = [
       {
-        type: 'checkbox',
-        name: 'indicators',
-        message: 'What performance indicators do you wanna see',
-        choices: [
-          {
-            name: 'FCP',
-            value: 'fcp',
-            checked: true,
-          },
-          {
-            name: 'TCP',
-            value: 'tcp',
-            checked: true,
-          },
-        ],
+        type: 'confirm',
+        name: 'tti',
+        message: 'Whether to measure TTI (the speed is very slow after opening)',
+        default: false,
       },
     ];
 

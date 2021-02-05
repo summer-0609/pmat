@@ -15,20 +15,23 @@ class Zelda {
 
   async run() {
     const options = await this.cli.monitor();
-    const puppeteer = await this.puppeteer.init();
+    const puppeteer = await this.puppeteer.init(options);
 
     this.observer.init(options, puppeteer);
 
     const { count, url } = options;
+    const { page, browser } = puppeteer;
 
     for (let i = 0; i < count; i += 1) {
       await this.observer.beforeStart();
-      await this.observer.puppeteer.page.goto(url, { waitUntil: 'load' });
+      await page.goto(url, { waitUntil: 'load' });
       await this.observer.start();
     }
 
-    // await this.observer.calculate();
-    // await this.observer.output();
+    await this.observer.calculate();
+    await this.observer.output();
+
+    await browser.close();
   }
 }
 

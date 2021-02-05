@@ -2,20 +2,20 @@ import type { IPuppeteerOutput } from '../puppeteer/interface';
 import type { ICliOptions } from '../cli/interface';
 
 import navigation from './navigation';
-import performance from './performance';
+import metric from './metric';
 import output from '../output';
 
 class Observer {
   public puppeteer: IPuppeteerOutput;
   public options: ICliOptions;
-  // private observers: Array<Partial<typeof navigation>>;
-  private observers: any;
+
+  private observers: Array<Partial<typeof navigation | typeof metric>>;
   private results: {};
 
   init(options: ICliOptions, puppeteer: IPuppeteerOutput): this {
     this.puppeteer = puppeteer;
     this.options = options;
-    this.observers = [navigation, performance];
+    this.observers = [navigation, metric];
 
     return this;
   }
@@ -35,7 +35,7 @@ class Observer {
   calculate(): void {
     const results = [];
     for (const observer of this.observers) {
-      results[observer.name] = observer.calculate?.();
+      results[observer.name] = observer.calculate();
     }
     this.results = results;
   }
@@ -46,6 +46,7 @@ class Observer {
     for (const observer of this.observers) {
       output.writeInfo(observer.name, this.results[observer.name]);
     }
+    output.writeLog();
   }
 }
 

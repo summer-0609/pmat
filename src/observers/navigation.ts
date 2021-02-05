@@ -6,17 +6,24 @@ import type { IPuppeteerOutput } from '../puppeteer/interface';
 
 const { log } = console;
 
-type NavigationType =
+type Name =
   | 'Duration time'
+  | 'Redirect time'
   | 'DNS lookup time'
   | 'TCP connect time'
   | 'Time To First Byte time'
   | 'App cache time'
   | 'Response time'
+  | 'Download time of the page'
   | 'Fetch resource time'
   | 'White screen time'
   | 'DOM Ready time'
   | 'DOM Content Load time';
+
+interface INavigationType {
+  name: Name;
+  measure: string;
+}
 
 /**
  * performance.getEntriesByType('navigation')
@@ -24,6 +31,8 @@ type NavigationType =
 class Navigation {
   public name = 'navigation';
   public navigationList: string[] = [];
+
+  beforeStart() {}
 
   async start(options?: IPuppeteerOutput): Promise<void> {
     const { page } = options;
@@ -42,9 +51,9 @@ class Navigation {
     return isSupport;
   }
 
-  calculate(): Partial<Record<NavigationType, number>> {
+  calculate(): INavigationType[] {
     if (isEmpty(this.navigationList)) {
-      return {};
+      return [];
     }
 
     const { length } = this.navigationList; // 分析次数
@@ -102,22 +111,22 @@ class Navigation {
       totalLoadTime += this.getLoadTime(domContentLoadedEventStart, domContentLoadedEventEnd);
     }
 
-    return mapValues(
+    return [
+      { name: 'Duration time', measure: format(this.getAverage(totalDuration, length)) },
+      { name: 'Redirect time', measure: format(this.getAverage(totalRedirectTime, length)) },
+      { name: 'App cache time', measure: format(this.getAverage(totalAppcacheTime, length)) },
+      { name: 'DNS lookup time', measure: format(this.getAverage(totalDNSTime, length)) },
+      { name: 'TCP connect time', measure: format(this.getAverage(totalTCPTime, length)) },
+      { name: 'Time To First Byte time', measure: format(this.getAverage(totalTTFBTime, length)) },
       {
-        'Duration time': this.getAverage(totalDuration, length),
-        'Redirect time': this.getAverage(totalRedirectTime, length),
-        'App cache time': this.getAverage(totalAppcacheTime, length),
-        'DNS lookup time': this.getAverage(totalDNSTime, length),
-        'TCP connect time': this.getAverage(totalTCPTime, length),
-        'Time To First Byte time': this.getAverage(totalTTFBTime, length),
-        'Download time of the page': this.getAverage(totalDownloadTime, length),
-        'Fetch resource time': this.getAverage(totalResource, length),
-        'White screen time': this.getAverage(totalWhiteScreenTime, length),
-        'DOM Ready time': this.getAverage(totalDOMReadyTime, length),
-        'DOM Content Load time': this.getAverage(totalLoadTime, length),
+        name: 'Download time of the page',
+        measure: format(this.getAverage(totalDownloadTime, length)),
       },
-      format,
-    );
+      { name: 'Fetch resource time', measure: format(this.getAverage(totalResource, length)) },
+      { name: 'White screen time', measure: format(this.getAverage(totalWhiteScreenTime, length)) },
+      { name: 'DOM Ready time', measure: format(this.getAverage(totalDOMReadyTime, length)) },
+      { name: 'DOM Content Load time', measure: format(this.getAverage(totalLoadTime, length)) },
+    ];
   }
 
   getNavigationList(): string {
