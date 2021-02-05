@@ -1,18 +1,19 @@
 {
-  "name": "zelda",
+  "name": "pmat",
   "version": "1.0.0",
-  "description": "",
+  "description": "🚀 A analysis tool for performance measurement",
   "main": "lib/index.js",
   "bin": {
-    "zelda": "bin/index.js"
+    "pmat": "bin/index.js"
   },
   "scripts": {
     "dev": "tsc --watch",
+    "build": "tsc build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "xtmike008@gmail.com",
+  "license": "MIT",
   "devDependencies": {
     "@rokku/fabric": "^1.0.5",
     "@types/clui": "^0.3.0",

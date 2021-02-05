@@ -32,7 +32,7 @@ class Metric {
     await page.click('body');
 
     let TTI = null;
-    
+
     if (tti) {
       await page.addScriptTag({ path: './node_modules/tti-polyfill/tti-polyfill.js' });
 
@@ -40,6 +40,8 @@ class Metric {
       TTI = await page.evaluate(() =>
         window.ttiPolyfill ? window.ttiPolyfill.getFirstConsistentlyInteractive() : -1,
       );
+    } else {
+      await page.waitForTimeout(50);
     }
 
     const metrics = await page.evaluate(() => {

@@ -4,7 +4,7 @@ import Cli from './cli';
 import Puppeteer from './puppeteer';
 import Observer from './observers';
 
-class Zelda {
+class Pmat {
   public cli: Cli;
   public puppeteer: Puppeteer;
   public observer: Observer;
@@ -49,4 +49,4 @@ class Zelda {
   }
 }
 
-new Zelda().run();
+new Pmat().run();
