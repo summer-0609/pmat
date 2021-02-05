@@ -26,17 +26,21 @@ class Metric {
   }
 
   async start(options?: IPuppeteerOutput) {
-    const { page } = options;
+    const { page, tti } = options;
 
     await page.waitForSelector('body', { visible: true });
     await page.click('body');
 
-    await page.addScriptTag({ path: './node_modules/tti-polyfill/tti-polyfill.js' });
+    let TTI = null;
+    
+    if (tti) {
+      await page.addScriptTag({ path: './node_modules/tti-polyfill/tti-polyfill.js' });
 
-    // Time to Interactive
-    const TTI = await page.evaluate(() =>
-      window.ttiPolyfill ? window.ttiPolyfill.getFirstConsistentlyInteractive() : -1,
-    );
+      // Time to Interactive
+      TTI = await page.evaluate(() =>
+        window.ttiPolyfill ? window.ttiPolyfill.getFirstConsistentlyInteractive() : -1,
+      );
+    }
 
     const metrics = await page.evaluate(() => {
       const { FP, FCP, LCP, CLS, FID, TBT } = window;
@@ -76,7 +80,7 @@ class Metric {
       },
       {
         name: 'CLS (Cumulative Layout Shift)',
-        measure: this.getAverage(result.CLS, length),
+        measure: this.getAverage(result.CLS, length).toFixed(5),
         score: getScore('cls', this.getAverage(result.CLS, length)),
       },
       {
@@ -89,7 +93,15 @@ class Metric {
         measure: format(this.getAverage(result.TBT, length)),
         score: getScore('tbt', this.getAverage(result.TBT, length)),
       },
-      { name: 'TTI (Time to Interactive)', measure: format(this.getAverage(result.TTI, length)) },
+      result.TTI
+        ? {
+            name: 'TTI (Time to Interactive)',
+            measure: format(this.getAverage(result.TTI, length)),
+          }
+        : {
+            name: '',
+            measure: '',
+          },
     ];
   }
 

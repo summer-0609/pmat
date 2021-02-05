@@ -10,7 +10,7 @@ class Puppeteer {
     });
     const page = await browser.newPage();
 
-    const { cache, javascript, online, useragent } = options;
+    const { cache, javascript, online, useragent, tti } = options;
 
     await page.setCacheEnabled(cache);
     await page.setJavaScriptEnabled(javascript);
@@ -20,7 +20,7 @@ class Puppeteer {
       await page.setUserAgent(useragent);
     }
 
-    return { page, browser };
+    return { page, browser, tti };
   }
 }
 

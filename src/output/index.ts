@@ -55,6 +55,8 @@ class Output {
             },
       );
     });
+
+    ui.div({ text: '' });
   }
 
   writeScore() {}
