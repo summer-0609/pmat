@@ -16,7 +16,7 @@ const level = {
 class Output {
   writeASCII() {
     log('\n');
-    log(chalk.cyanBright(figlet.textSync('Zelda')));
+    log(chalk.cyanBright(figlet.textSync('Pmat')));
     log('\n');
   }
 
