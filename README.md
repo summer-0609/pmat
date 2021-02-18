@@ -1,4 +1,4 @@
-**English** | [中文](./README.zh-CN.md)
+**English**
 
 <p align="center">🚀 A analysis tool for performance measurement</p>
 
@@ -8,12 +8,14 @@
     <img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="">
 </p>
 
+<img src="https://p9-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/22823548692f42d39e325b7d574c0583~tplv-k3u1fbpfcp-watermark.image" alt="">
+
 ## Install
 
 ```bash
 npm install d -g pmat
 
-# or use yarn:
+# or use yarn(recommend):
 # yarn global add pmat
 ```
 
@@ -74,28 +76,26 @@ Options:
 For instance
 
 ```bash
- # We can omit the protocol header if has omitted, the protocol header will be `https://`
-
  # The simplest usage
- pmat taobao.com
+ pmat https://taobao.com
 
  # if the url has any parameter, surround the url with double quotes
- pmat "taobao.com?a=1&b=2"
+ pmat "https://taobao.com?a=1&b=2"
 
  #  Load the specified page 100 times
- pmat -n 5 "taobao.com?a=1&b=2"
+ pmat -n 5 "https://taobao.com?a=1&b=2"
 
  #  Load the specified page 100 times without `cache`
- pmat -n 5 "taobao.com?a=1&b=2" --no-cache
+ pmat -n 5 "https://taobao.com?a=1&b=2" --no-cache
 
  #  Load the specified page 100 times without `javascript`
- pmat -n 5 "taobao.com?a=1&b=2" --no-javascript
+ pmat -n 5 "https://taobao.com?a=1&b=2" --no-javascript
 
  #  Load the specified page 100 times with `headless = false`
- pmat -n 5 "taobao.com?a=1&b=2" -H false
+ pmat -n 5 "https://taobao.com?a=1&b=2" -H false
 
  #  Load the specified page 100 times with set `useragent`
- pmat -n 5 "baidu.com?a=1&b=2" -u "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36"
+ pmat -n 5 "https://baidu.com?a=1&b=2" -u "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36"
 ```
 
 ## Pain point
@@ -128,4 +128,4 @@ In addition, you can also make a comparison and get **accurate data** about **ho
 
 Welcome Star and PR
 
-Copyright (c) 2018 xtmike008@gmail.com
+Copyright (c) 2021 xtmike008@gmail.com
