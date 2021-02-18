@@ -1,5 +1,3 @@
-**English**
-
 <p align="center">🚀 A analysis tool for performance measurement</p>
 
 <p align="center">
